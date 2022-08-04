@@ -1,0 +1,211 @@
+node {
+  name: "input"
+  op: "Placeholder"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 512
+        }
+        dim {
+          size: 768
+        }
+      }
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/moments/mean/reduction_indices"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/moments/mean"
+  op: "Mean"
+  input: "input"
+  input: "bert/encoder/layer_0/output/LayerNorm/moments/mean/reduction_indices"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/moments/SquaredDifference"
+  op: "SquaredDifference"
+  input: "input"
+  input: "bert/encoder/layer_0/output/LayerNorm/moments/mean"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/moments/variance/reduction_indices"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/moments/variance"
+  op: "Mean"
+  input: "bert/encoder/layer_0/output/LayerNorm/moments/SquaredDifference"
+  input: "bert/encoder/layer_0/output/LayerNorm/moments/variance/reduction_indices"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/batchnorm/add/y"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 9.999999960041972e-13
+      }
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/batchnorm/add"
+  op: "Add"
+  input: "bert/encoder/layer_0/output/LayerNorm/moments/variance"
+  input: "bert/encoder/layer_0/output/LayerNorm/batchnorm/add/y"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/batchnorm/Rsqrt"
+  op: "Rsqrt"
+  input: "bert/encoder/layer_0/output/LayerNorm/batchnorm/add"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/gamma"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+          dim {
+            size: 768
+          }
+        }
+        tensor_content: "eBq?E\032s?\3378o?\246\253g?\014\374$?e\rk?\200\307c?\251vk?<\010\\?\t\205v?\314bp?I\302f?\t\014??\215Xi?\033\325k?\260\346g?<\367l?\211\207m?h\231m?\241\271k?\317`p?\314\tm?\232<y?c\324f?\310Mi?\235\254q?\203\332o?E\377l??\014u?\031\302n?\026ha?7tr?\260\220r?\302Yh?ZCv?\355\236k?\2664n?\275\206i?\222?m?\231\304r?F>m?C\270n?\203\000r?2\277v?,\366f?\317Hn?L.l?f\304n?R\362k?.\364l?\363\'l?\007\345\n?>\201h?c\332g?\220\327h?\270\026n?\311\331n?\003\304i?*\243]?{\332v?}\322u?\034\251k?\300Be?h\272g?X\006s?X\220j?\317\026m?\365\303j?rkg?\005\264e?\233,h?\375\256i?\016\007p?\314\310k?W^s?.\376e?\026\261k?jNh?\317\340D?\270Lm?\2125n?\216\350a?\034\335c?(\036o?+\350m?\270\254t?\tak?\026\361q?S]h?\201\327e?\330\344e?6\023n?\207\206k?\327ng?E\020f?\356\014\346>#\001f?o\331m?\016xm?;\343h?\241&2?\223\327k?\022\320h?\357 z?\332\347f?\216Pg?\177\313m?\2128i?\315\224j?wAm?p\032q?\177wj?\245-q?\254bp?\306\257h?\270\326i?\231\337s?;\204c?\375\360k?\224\332m?1\230p?\210Sr?0qj?\270\221h?\265\326n?\320#g?\326\236h?\277/g?V\035q?\206\007m?\373\021p?\300\020i?Q\334p?\223\027g?@\332l?\'\300x?[Uj?=ei?\277\262o?\250\352b?\305=r?&\306v??\rp?\276\216f?\233sc?\034\277i?\333;o?\244:s?\216 h?1\025k?\350\342m?\216\005^?\213\257c?\316(e?^\323g?d\233n?\363\214r?\320Kq?\200:l?\341\330l?\2104m?\315\002i?\007Xq?\226\237l?p\351l?w\311o?=Av?\277\241g?{mm?\301jf?~jR?+\312n?\343\327h?\261\327h?\223\237j?\023\232o?i|n?\305\323n?\314L*?)\303y?\361\232p?\363\230t?\234_n?\033\006i?\371\357^?\304\223r?\210\342e?\276\334i?\310\025*?{zi?\214Pp?\252\211j?v\224K?\224\316j?\253fi?\351A\024?\202\014Y?\337yq?\3333^?\031\023p?\236Nd?Z\365h?\334\213q?\312\307r?l6d?\245\236o?\355&s?\032\340f?\023\205o?\316\362??\276am?\334\343p?X}l?!>s?\244\303o?\036*k?\021dn?s\243a?G1k?6\007w?X\303g?\230\211n?7xo?\372X[?\205\345k?\323\237i?\263\226l?F\251m?\010ca?\026\307o?\306.s?Z\230h?\322\357l?3*_?\207Or?\013\341t?\245\370k?\027\rg?\273\320i?\341Rl?o\037q?/\314.?D\262c?\267\020#?\267$o?&xh?\371zd?\250\273r?\201.u?\312\366l?\300\215k?\275\224m?c\337\\?_#E?\271\377l?\245\227m?gGi?\244he?`mn?-\206o?\252%(?\303\216q?\252\264k?`\304D?\342\314l?8\3653?\323\356m?\275mj?l\200l?F@o?\214\010p?\037\374f?\2422p?\016\310k?\235fo?\264\305o?\271\322r?\274,p?\005\346r?a\236h?\235\004v?{Nm?3Yu?\363\264n?H\310e?-\326l? \034d?\353\210u?\210*`?A\313q?v\021p?b\242q?sn(?B\203k?)\365\215>\222\037h?\346Bu?//u?\3734l?\315\272u?\002%p?\023Zm?+2k?J<l?\371&^?5pt?%\003m?9U]?>\"t?\337\203m?\237%j?\225\361m?\344\321r?\217\210K?\272\375m?/oE?F\257j?\304\302i?S@i?c\027v?\241\261u?N9k?\315\226v?\221\330s?u\320t?\333\335h?P?q?\354\235k?%Dn?\014!j?neg?\361`q?\325\267k?\230\222q?\360td?\334\253j?\214,u?K\"v?\310\332k?E\005P?\345\242p?\240\267h?\300\001q?\177Qn?a\034j?\240\032[?\323\rj?\207{q?\231\036s?\267;w?k\033s?\270ni?\244hd?$^h?\303vo?\260\333f?\177\326Q?\264\271m?\346\007j?r\\i?\177\274m?\t\243g?\370\224h?\344fk?\215x\022?\027\353i?\320]f?p\360r?\272p\032?3\261^?jNj?\002\306j?_\234n?\2523u?6ah?\204\310q?\014\262h?\217:w?\336Oo?\004zk?X\272o?\235\025l?(j]?\227\351m?\347\364e?&\036b?v\255p?\327\347r?\350\207??#\002h?\263Je?\t\243g?\214\263j?\013,m?Vvo?>\0362?&\230h?\315Kn?j0l?l\307g?\305ze?\267\237c?\363Ai?\223\010i?=\244q?\204.r?\225Gl?\262\335r?\245lp?\367\341s?\202\271r?\230;o?\376\3344?\"\027l?\211\303o?a\330p?\3444m?1{p?\354\2347?\367.m?q\035h?w\322X?\026\277u?\375\304j?\320\304d?\253lm?\354\002s?\314\353q?\277>l?B\301l?\031Dp?P\005v?Q{m?WHo?\200\234w?\006\314q?\244\342k?\236\372l?[Bp?\016Uv?\001\014p?v|n?}en?G\235w?\333\312m?\037\306V?m=j?\371\251b?%\026i?\257<q?)\336u?\211an?\215|s?\026Am?=\345h?\226Lm?\021,o?q\257l?\202\342p?B\215e?7\275i?\252\271o?~|z?\0046:?\300Ij?\310ck?7\204i?\227ch?x\016n?\257\003:?4xl?\005\022n?~\226h?\340\366m?\236\212I?\245]t?\325\200q?ZUo?\031\343q?)\242r?=Vi?k(o?\313\366j? \037t?\313\201q?\202\353s?+\020f?x\220l?\364\307j?\337\221t?\t-m?\004\003s?\236\264o?eMi?ayi?\232\264q?Jhm?\377\340j?\263\007k?A\021e?\0220o?/4d?0\376n?\307ip?\207kq?\235\344m?z1l?\322\001A?\223?j?wYk?\255\376f?g3q?\261\014k?\330!I?\340\220h?\240\314k?\020\370p?\342\222i?\351\037g?J\"j?\304\264k?#Og?h\246k?\300`l?\014\304o?uPs?k\3567?\365\372&?M\326@?\250Jr?x}q?|\261b?\247\200g?M\306n?\207\223s?\361_l?\333>i?\0006P?\364\302d?Ci0?\\\321s?\363#p?\230\'q?VCu?\334\024d?\340\270w?\334Dm?\225bj?\201un?\324@k?Bvm?\002\221m?W\210n?A_i?5Gm?\374\243g?\347<k?\323\363d?>\270f?\233\352r?A\220j?\273\343g?\204;r?R\022d?\271\227f?\314\211p?(fj?\304\026o?\231]f?C4m?\007\226D?M\0076?\360\"k?\210\303;?\337\247g?0nc?\023\243d?REp?\r\312c?\237\211w?\345\356o?\016\243o?\344\240d?\240\240r?g\365e?|\346j?X\216n?@np?U\272j?]\016#?\323,\\?\202\036h?\375\332r?\005/g?q\305l?\362\363o?4\355n?\355\321m?\273(m?s\273t?Ttj?>\343j?\331\234p?\030<o?\352Ej?\266fj?\261\356s?\210\340h?\275)f?U\202r?b\335\\?\301qo?\216qc?\337\367t?\271|o?\306\363n?\013\352\021?\255\240t?r}l?\232\241o?L\210n?r5n?\217\013k?O\317n?!\334o?\256Ei?\263\320*?\2234l?1\305m?\234Zi?uBo?A\232h?)\232q?\254\250l?@c)?\221dp?k\306q?a2(?E\232s?\323wk?\323Aq?B~h?8\013q?\2672g?\311\252d?\r\372m?\007+n?O#\034?\243\245q?Wqm?\003&j?\305+w?\242\355C?f^r?#\352m?\255\205k?yWt?\251\372u?iCn?\315sk?m\256\377>\336\301d?aZs?\016\315s?\305Pe?\243\302o?\276[f?\231\246q?\207ep?\264Wp?\2560n?\315\014k?\014\347p?\303ml?\303\025t?\003\035n?\034\274p?jWq?\336\026f?\266Ho?Q\272g?\372Iq?\200\303o?\016Zk?\004=w?\2503n?\316\377v?k\213,?R\311\030?\032K\025?\371@i?\350\036o?\"(l?\255ia?s\243g?\201gX?\306\305n?\272\335o?\202ji?\204Qn?\212Io?\200\370l?\232,\'?elk?\014jo?\304:{?\332Ji?\350\264r? \330k?v\261s?\034\003l?J\307h?\313eg?\310:s?OAm?\274\315d?\030kb?\242\302r?\376\251Z?\233lj?\232\234l?\303\335j?{\366u?^@q?f\026o?\014\267W?\022\377p?\220\336i?\232\262k?\004\024h?\277\316j?zab?\324\326j?\300=p?p\223i?\340yw?s\322n?g\211`?\245-s?=\311e?\376dl?|T0?d\371r?6\017q?\262\027g?Y\355j?\030\316i?\010$q?T\250m?\254=t?E&o?\361\030r?9\217k?\315\237l?\"\037m?]Mo?\271g\016?V\007g?hYk?\243\307l?\020Dm?\301}n?\203\320k?n\256k?Wsn?^\0269?\213\334g?)Oh?"
+      }
+    }
+  }
+}
+node {
+  name: "bert/encoder/layer_0/output/LayerNorm/batchnorm/mul"
+  op: "Mul"
+  input: "bert/encoder/layer_0/output/LayerNorm/batchnorm/Rsqrt"
+  input: "bert/encoder/layer_0/output/LayerNorm/gamma"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
